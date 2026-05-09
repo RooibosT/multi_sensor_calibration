@@ -1,6 +1,6 @@
 # Docker Usage
 
-이 문서는 `multi_sensor_calibration` 레포를 ROS1 Docker 환경에서 빌드하고 실행하는 방법을 정리합니다. Docker 환경은 Ubuntu 18.04 + ROS Melodic 기준입니다.
+이 문서는 `multi_sensor_calibration` 레포를 ROS1 Docker 환경에서 빌드하고 실행하는 방법을 정리합니다. Docker 환경은 `osrf/ros:melodic-desktop-full-bionic` 베이스 이미지, 즉 Ubuntu 18.04 + ROS Melodic 기준입니다.
 
 ## Files
 
@@ -12,7 +12,9 @@ docker/ros1/build_docker.sh
 docker/ros1/run_docker.sh
 ```
 
-참고: 원본 README에는 `libatlas-dev`와 `ros-<distro>-opencv3`가 적혀 있지만, 현재 Ubuntu 18.04 + ROS Melodic apt 저장소에서는 각각 `libatlas-base-dev`, `libopencv-dev`/ROS OpenCV 관련 패키지 조합으로 설치합니다. Dockerfile은 현재 설치 가능한 패키지명에 맞춰져 있습니다.
+참고: 원본 README에는 `libatlas-dev`와 `ros-<distro>-opencv3`가 적혀 있지만, 현재 Ubuntu 18.04 + ROS Melodic apt 저장소에서는 각각 `libatlas-base-dev`, `libopencv-dev`/ROS OpenCV 관련 패키지 조합으로 설치합니다. Dockerfile은 현재 설치 가능한 패키지명에 맞춰져 있고, ROS apt source/key 설정은 베이스 이미지에 맡깁니다.
+
+Python 패키지는 재현성을 위해 버전을 고정합니다. `rmsd`는 PyPI에서 `1.5.1` 배포본이 없어 Dockerfile에서 `rmsd==1.5.0`을 사용합니다.
 
 ## Host Prerequisites
 
