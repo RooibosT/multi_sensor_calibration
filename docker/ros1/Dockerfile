@@ -20,6 +20,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libopencv-dev \
     libyaml-cpp-dev \
     python-catkin-tools \
+    python-nose \
     python-rosdep \
     python-rospkg \
     python-rosinstall \
@@ -39,6 +40,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ros-${ROS_DISTRO}-cmake-modules \
     ros-${ROS_DISTRO}-cv-bridge \
     ros-${ROS_DISTRO}-image-geometry \
+    ros-${ROS_DISTRO}-image-proc \
     ros-${ROS_DISTRO}-kdl-parser \
     ros-${ROS_DISTRO}-pcl-ros \
     ros-${ROS_DISTRO}-ros-numpy \

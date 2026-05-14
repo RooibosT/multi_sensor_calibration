@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>lgit_calibration_preprocessing</name>
+  <version>0.0.0</version>
+  <description>Preprocessing nodes for LGIT camera, Hesai LiDAR, and radar calibration bags.</description>
+
+  <maintainer email="chan@example.com">chan</maintainer>
+  <license>GPLv3</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>rospy</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>std_msgs</build_depend>
+
+  <exec_depend>rospy</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+
+  <test_depend>python-nose</test_depend>
+</package>

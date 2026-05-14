@@ -1,0 +1,38 @@
+visualize: false
+lidar_parameters:
+    number_layers: 128                         # Hesai AT128 rings.
+pass_through_filter:                           # AT128 frame: x forward, y lateral, z up.
+    -  {dim: "x", min: 3.0, max: 12.0}
+    -  {dim: "y", min: -3.0, max: 3.0}
+ground_floor_filter:
+    distance_threshold: 0.1
+    axis: {x: 0.0, y: 0.0, z: 1.0}
+    eps_angle: 0.55
+    max_iterations: 1000
+    set_negative: true
+    model_type: "sacmodel_perpendicular_plane"
+    return_projected: false
+calibration_board_filter:
+    distance_threshold: 0.15
+    axis: {x: 0.0, y: 0.0, z: 1.0}
+    eps_angle: 0.55
+    max_iterations: 250
+    set_negative: false
+    model_type: "sacmodel_parallel_plane"
+    return_projected: true
+circle_detection:
+    distance_threshold: 0.03
+    max_iterations: 1000
+    min_radius: 0.06
+    max_radius: 0.1
+    cluster_iterations: 100
+    max_points_within_radius: 0
+    radius_max_points: 0.03
+cloud_edge_filter:
+    threshold: 0.5
+    radius: 0.0736
+refinement:
+    refine: false
+    width: 0.24
+    height: 0.24
+    threshold_inlier: 0.02

@@ -1,0 +1,34 @@
+pre_gauss:
+    apply: true
+    ksize_x: 5
+    ksize_y: 5
+    sigma_x: 1.5
+    sigma_y: 1.5
+
+canny:
+    apply: true
+    min_threshold: 50
+    max_threshold: 120
+
+post_gauss:
+    apply: true
+    ksize_x: 5
+    ksize_y: 5
+    sigma_x: 1.5
+    sigma_y: 1.5
+
+hough:
+    dp: 2
+    min_dist: 18
+    param1: 100
+    param2: 22
+    min_radius: 5
+    max_radius: 18
+
+roi:
+    x: 0
+    y: 0
+    width: 1920
+    height: 1080
+
+visualize: false

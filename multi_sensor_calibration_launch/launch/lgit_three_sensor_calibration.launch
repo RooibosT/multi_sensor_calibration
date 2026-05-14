@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="camera_frame" default="camera_0"/>
+  <arg name="lidar_frame" default="hesai_lidar"/>
+  <arg name="radar_frame" default="front_center_right_sonar_link"/>
+  <arg name="ring_mode" default="auto"/>
+
+  <node pkg="lgit_calibration_preprocessing" type="hesai_to_velodyne_node.py" name="hesai_to_velodyne" output="screen">
+    <param name="layers" value="128"/>
+    <param name="ring_mode" value="$(arg ring_mode)"/>
+    <param name="output_frame" value="$(arg lidar_frame)"/>
+    <remap from="~input" to="/lidar_points"/>
+    <remap from="~output" to="/velodyne_points"/>
+  </node>
+
+  <node pkg="lgit_calibration_preprocessing" type="radar_pc2_to_pattern_node.py" name="radar_pc2_to_pattern" output="screen">
+    <param name="output_frame" value="$(arg radar_frame)"/>
+    <param name="min_x" value="6.0"/>
+    <param name="max_x" value="10.0"/>
+    <param name="max_abs_y" value="2.0"/>
+    <param name="selection" value="max_intensity"/>
+    <remap from="~input" to="/radar_detection_raw_conti"/>
+    <remap from="~output" to="/radar_detector/radar_pattern"/>
+  </node>
+
+  <node pkg="lgit_calibration_preprocessing" type="camera_info_publisher_node.py" name="camera_info_publisher" output="screen">
+    <param name="frame_id" value="$(arg camera_frame)"/>
+    <param name="width" value="1920"/>
+    <param name="height" value="1080"/>
+    <param name="fx" value="926.4623"/>
+    <param name="fy" value="926.33685"/>
+    <param name="cx" value="960.8434"/>
+    <param name="cy" value="538.19025"/>
+    <rosparam param="distortion">[0.84310, 0.14190, -0.000013, 0.0000272, 0.00300, 1.1989, 0.34290, 0.02110]</rosparam>
+    <remap from="~image" to="/camera0/image_raw"/>
+    <remap from="~camera_info" to="/camera0/camera_info"/>
+  </node>
+
+  <node pkg="image_proc" type="image_proc" name="image_proc" ns="camera0" output="screen"/>
+
+  <node pkg="mono_detector" type="mono_detector_node" name="mono_detector" output="screen">
+    <param name="yaml_file" value="$(find mono_detector)/config/image_processing_lgit_6_10m.yaml"/>
+    <remap from="/ueye/left/image_raw" to="/camera0/image_rect_color"/>
+    <remap from="/ueye/left/camera_info" to="/camera0/camera_info"/>
+  </node>
+
+  <node pkg="lidar_detector" type="lidar_detector_node" name="lidar_detector" output="screen">
+    <param name="path_to_yaml_config" value="$(find lidar_detector)/config/config_lgit_at128.yaml"/>
+  </node>
+
+  <node pkg="accumulator" type="accumulator" name="accumulator" output="screen">
+    <rosparam param="sensor_topics">[/mono_detector/mono_pattern, /lidar_detector/lidar_pattern, /radar_detector/radar_pattern]</rosparam>
+  </node>
+
+  <node pkg="optimization" type="server.py" name="optimizer" output="screen">
+    <param name="reference_sensor" value="$(arg camera_frame)"/>
+    <param name="calibration_mode" value="3"/>
+    <param name="correspondences" value="known"/>
+    <param name="reordering" value="based_on_reference_sensor"/>
+    <param name="outlier_removal" value="remove_board_locations"/>
+  </node>
+</launch>

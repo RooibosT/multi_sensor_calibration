@@ -60,6 +60,12 @@ def get_pcl_sensor(msg, nr_detections):
 
     return data
 
+
+def set_default_param(name, value):
+    if not rospy.has_param(name):
+        rospy.set_param(name, value)
+
+
 class optimizer_node():
     """ Optimizer node that receives service call from accumulator with all the detections and calls optimizer to compute all sensor poses
     
@@ -76,13 +82,13 @@ class optimizer_node():
         s = rospy.Service('/optimizer/optimize', SendPatterns, self.optimize)
 
         # ROS parameters
-        rospy.set_param("~calibration_mode", 3)
-        rospy.set_param("~reference_sensor", 'velodyne')
-        rospy.set_param("~correspondences", 'known')
-        rospy.set_param("~export_detections_to_files", True)
-        rospy.set_param("~visualise", True)
-        rospy.set_param("~reordering", 'based_on_reference_sensor') #Either 'based_on_reference_sensor' or 'based_on_definition'
-        rospy.set_param("~outlier_removal", 'remove_board_locations')
+        set_default_param("~calibration_mode", 3)
+        set_default_param("~reference_sensor", 'velodyne')
+        set_default_param("~correspondences", 'known')
+        set_default_param("~export_detections_to_files", True)
+        set_default_param("~visualise", True)
+        set_default_param("~reordering", 'based_on_reference_sensor') #Either 'based_on_reference_sensor' or 'based_on_definition'
+        set_default_param("~outlier_removal", 'remove_board_locations')
 
         # spin() keeps Python from exiting until node is shutdown
         rospy.spin()
@@ -196,7 +202,7 @@ class optimizer_node():
 
             # Pick sensor as reference sensor for reindexing:
             for i in range(len(sensors)):
-                if sensors[i].type is not 'radar':
+                if sensors[i].type != 'radar':
                     index_reference_sensor = i
                     break
             # Remove all non visible detections in reference sensors such that we can reorder based on that
