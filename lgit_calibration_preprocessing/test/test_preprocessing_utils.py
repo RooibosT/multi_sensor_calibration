@@ -2,7 +2,7 @@ import math
 import unittest
 
 from lgit_calibration_preprocessing.camera_info import camera_matrices
-from lgit_calibration_preprocessing.lidar_ring import assign_rings, choose_ordering
+from lgit_calibration_preprocessing.lidar_ring import assign_rings, choose_ordering, resolve_auto_mode
 from lgit_calibration_preprocessing.radar_target import select_target
 
 
@@ -16,6 +16,11 @@ class LidarRingTest(unittest.TestCase):
         pitches = [-1.0, 0.0, 1.0, -1.0, 0.0, 1.0]
 
         self.assertEqual(choose_ordering(pitches, 3), "modulo")
+
+    def test_resolve_auto_mode_uses_detected_ordering(self):
+        pitches = [-1.0, 0.0, 1.0, -1.0, 0.0, 1.0]
+
+        self.assertEqual(resolve_auto_mode(pitches, 3), "modulo")
 
     def test_assign_rings_uses_block_order_when_requested(self):
         rings = assign_rings(point_count=6, layers=3, mode="block")

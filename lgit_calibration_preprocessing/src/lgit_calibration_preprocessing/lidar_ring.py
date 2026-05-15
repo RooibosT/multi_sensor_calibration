@@ -14,6 +14,10 @@ def choose_ordering(pitches, layers):
     return "block" if block_score <= modulo_score else "modulo"
 
 
+def resolve_auto_mode(pitches, layers):
+    return choose_ordering(pitches, layers)
+
+
 def assign_rings(point_count, layers, mode="auto", pitches=None, vertical_angles=None):
     if point_count <= 0:
         return []
@@ -28,7 +32,7 @@ def assign_rings(point_count, layers, mode="auto", pitches=None, vertical_angles
     if mode == "auto":
         if pitches is None:
             raise ValueError("pitches are required for auto ring assignment")
-        mode = choose_ordering(pitches, layers)
+        mode = resolve_auto_mode(pitches, layers)
 
     if mode == "block":
         points_per_ring = max(1, int(math.ceil(float(point_count) / layers)))
