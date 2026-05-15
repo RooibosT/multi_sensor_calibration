@@ -23,6 +23,9 @@
 
 namespace mono_detector {
 
+/// Select the four circles that best match the calibration board's 2x2 circle layout.
+std::vector<cv::Vec3f> selectBoardCircles(std::vector<cv::Vec3f> circles);
+
 /// Function to calculate the location of the calibration board in the image (pixel coordinates)
 void detectMono(
 	cv::Mat const & image,

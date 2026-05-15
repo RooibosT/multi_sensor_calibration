@@ -51,3 +51,6 @@ target_link_libraries(${PROJECT_NAME}_node ${PROJECT_NAME}_ros ${catkin_LIBRARIE
 # Add tests
 catkin_add_gtest(${PROJECT_NAME}_yaml_test test/yaml.cpp)
 target_link_libraries(${PROJECT_NAME}_yaml_test ${PROJECT_NAME})
+
+catkin_add_gtest(${PROJECT_NAME}_detector_test test/detector.cpp)
+target_link_libraries(${PROJECT_NAME}_detector_test ${PROJECT_NAME})
