@@ -7,8 +7,8 @@ pre_gauss:
 
 canny:
     apply: true
-    min_threshold: 50
-    max_threshold: 120
+    min_threshold: 60
+    max_threshold: 145
 
 post_gauss:
     apply: true
@@ -19,16 +19,16 @@ post_gauss:
 
 hough:
     dp: 2
-    min_dist: 18
-    param1: 100
-    param2: 22
+    min_dist: 32
+    param1: 120
+    param2: 38
     min_radius: 5
-    max_radius: 18
+    max_radius: 20
 
 roi:
-    x: 0
-    y: 0
-    width: 1920
-    height: 1080
+    x: 430
+    y: 210
+    width: 1060
+    height: 700
 
-visualize: false
+visualize: true
