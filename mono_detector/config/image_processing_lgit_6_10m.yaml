@@ -26,9 +26,9 @@ hough:
     max_radius: 20
 
 roi:
-    x: 430
-    y: 210
-    width: 1060
-    height: 700
+    x: 100
+    y: 150
+    width: 1720
+    height: 850
 
 visualize: true

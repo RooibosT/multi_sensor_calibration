@@ -93,17 +93,40 @@ double boardGeometryScore(std::vector<cv::Vec3f> const & circles) {
 
 	double const side_mean = mean(sides);
 	double const diagonal_mean = mean(diagonals);
+	double const radius_mean = mean(radii);
 	if (side_mean <= 0.0 || diagonal_mean <= side_mean) {
 		return std::numeric_limits<double>::max();
 	}
 
 	double const expected_square_diagonal_ratio = std::sqrt(2.0);
+	double const expected_side_to_radius_ratio = 0.24 / 0.075;
 	double const diagonal_ratio_error = std::abs((diagonal_mean / side_mean) - expected_square_diagonal_ratio);
 	double const diagonal_balance = std::abs(diagonals[0] - diagonals[1]) / diagonal_mean;
+	double const side_to_radius_error = radius_mean > 0.0 ? std::abs((side_mean / radius_mean) - expected_side_to_radius_ratio) / expected_side_to_radius_ratio : std::numeric_limits<double>::max();
 
-	return relativeVariance(sides) + relativeVariance(radii) + diagonal_balance + diagonal_ratio_error;
+	return relativeVariance(sides) + relativeVariance(radii) + diagonal_balance + diagonal_ratio_error + side_to_radius_error;
 }
 
+double radiusPriority(cv::Vec3f const & circle) {
+	static double const expected_min_radius = 5.0;
+	static double const expected_max_radius = 20.0;
+	static double const expected_radius = 0.5 * (expected_min_radius + expected_max_radius);
+	return std::abs(circle[2] - expected_radius);
+}
+
+}
+
+std::vector<cv::Vec3f> limitCircleCandidates(std::vector<cv::Vec3f> circles) {
+	static std::size_t const max_candidates = 32;
+	if (circles.size() <= max_candidates) {
+		return circles;
+	}
+
+	std::sort(circles.begin(), circles.end(), [](cv::Vec3f const & lhs, cv::Vec3f const & rhs) {
+		return radiusPriority(lhs) < radiusPriority(rhs);
+	});
+	circles.resize(max_candidates);
+	return circles;
 }
 
 std::vector<cv::Vec3f> selectBoardCircles(std::vector<cv::Vec3f> circles) {
@@ -175,6 +198,7 @@ void detectMono(
 
 	// Filter out circles with it's center outside the roi
 	circles.erase(std::remove_if(circles.begin(), circles.end(), [configuration](cv::Vec3f p){return !configuration.roi.contains(cv::Point(p[0], p[1]));}), circles.end());
+	circles = limitCircleCandidates(circles);
 
 	circles = selectBoardCircles(circles);
 

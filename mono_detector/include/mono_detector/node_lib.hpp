@@ -18,6 +18,7 @@
 
 #pragma once
 #include "types.hpp"
+#include <mono_detector/SetRoi.h>
 #include <ros/ros.h>
 #include <sensor_msgs/Image.h>
 #include <pcl_ros/point_cloud.h>
@@ -46,6 +47,9 @@ private:
 	/// Subscriber for camera info
 	ros::Subscriber camera_info_subscriber_;
 
+	/// Service for changing the image-space circle detection ROI at runtime
+	ros::ServiceServer set_roi_service_;
+
 	/// Configuration of parameters, intrinsics, visualization
 	Configuration config_;
 
@@ -60,7 +64,9 @@ private:
 
 	/// Camera info callback
 	void cameraInfoCallback(sensor_msgs::CameraInfo const & camera_info);
+
+	/// Runtime ROI update callback
+	bool setRoiCallback(mono_detector::SetRoi::Request & req, mono_detector::SetRoi::Response & res);
 };
 
 }
-

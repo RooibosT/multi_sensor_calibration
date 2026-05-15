@@ -8,18 +8,31 @@ find_package(catkin REQUIRED COMPONENTS
 	camera_calibration_parsers
 	cv_bridge
 	image_geometry
+	message_generation
 	pcl_ros
 	roscpp
 	sensor_msgs
+	std_msgs
 )
 
 find_package(OpenCV REQUIRED)
 find_package(yaml-cpp REQUIRED)
 find_package(Eigen3 REQUIRED)
 
+add_service_files(
+	FILES
+	SetRoi.srv
+)
+
+generate_messages(
+	DEPENDENCIES
+	std_msgs
+)
+
 catkin_package(
 	INCLUDE_DIRS include ${OpenCV_INCLUDE_DIRS}
 	LIBRARIES ${PROJECT_NAME} ${PROJECT_NAME}_ros ${OpenCV_LIBS}
+	CATKIN_DEPENDS message_runtime
 	DEPENDS cv_bridge
 )
 
@@ -42,10 +55,12 @@ target_link_libraries(${PROJECT_NAME}_cli ${PROJECT_NAME} ${catkin_LIBRARIES} ${
 # Library containing a ros wrapper around the detection library
 add_library(${PROJECT_NAME}_ros src/lib/node_lib.cpp)
 target_link_libraries(${PROJECT_NAME}_ros ${PROJECT_NAME} ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+add_dependencies(${PROJECT_NAME}_ros ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 # Ros node, depending on the ros detection library
 add_executable(${PROJECT_NAME}_node src/node.cpp)
 target_link_libraries(${PROJECT_NAME}_node ${PROJECT_NAME}_ros ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 
 # Add tests

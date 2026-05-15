@@ -50,6 +50,27 @@ TEST(Detector, SelectBoardCirclesPrefersTwoByTwoGridOverDistractors) {
 	EXPECT_TRUE(containsNear(selected, cv::Point2f(694, 508)));
 }
 
+TEST(Detector, SelectBoardCirclesRejectsLargeGridWithWrongRadiusRatio) {
+	std::vector<cv::Vec3f> circles = {
+		cv::Vec3f(100, 100, 10),
+		cv::Vec3f(300, 100, 10),
+		cv::Vec3f(100, 300, 10),
+		cv::Vec3f(300, 300, 10),
+		cv::Vec3f(600, 420, 12),
+		cv::Vec3f(638, 421, 12),
+		cv::Vec3f(601, 458, 11),
+		cv::Vec3f(640, 459, 12),
+	};
+
+	std::vector<cv::Point2f> selected = centers(mono_detector::selectBoardCircles(circles));
+
+	ASSERT_EQ(4u, selected.size());
+	EXPECT_TRUE(containsNear(selected, cv::Point2f(600, 420)));
+	EXPECT_TRUE(containsNear(selected, cv::Point2f(638, 421)));
+	EXPECT_TRUE(containsNear(selected, cv::Point2f(601, 458)));
+	EXPECT_TRUE(containsNear(selected, cv::Point2f(640, 459)));
+}
+
 TEST(Detector, SelectBoardCirclesReturnsInputWhenFourOrFewerCandidatesExist) {
 	std::vector<cv::Vec3f> circles = {
 		cv::Vec3f(600, 420, 12),
@@ -58,4 +79,22 @@ TEST(Detector, SelectBoardCirclesReturnsInputWhenFourOrFewerCandidatesExist) {
 	};
 
 	EXPECT_EQ(3u, mono_detector::selectBoardCircles(circles).size());
+}
+
+TEST(Detector, LimitCircleCandidatesDoesNotBiasTowardImageCenter) {
+	std::vector<cv::Vec3f> circles;
+	for (int i = 0; i < 40; ++i) {
+		circles.push_back(cv::Vec3f(900 + i, 500, 4));
+	}
+	circles.push_back(cv::Vec3f(250, 420, 12));
+	circles.push_back(cv::Vec3f(288, 421, 12));
+	circles.push_back(cv::Vec3f(251, 458, 11));
+	circles.push_back(cv::Vec3f(290, 459, 12));
+
+	std::vector<cv::Point2f> limited = centers(mono_detector::limitCircleCandidates(circles));
+
+	EXPECT_TRUE(containsNear(limited, cv::Point2f(250, 420)));
+	EXPECT_TRUE(containsNear(limited, cv::Point2f(288, 421)));
+	EXPECT_TRUE(containsNear(limited, cv::Point2f(251, 458)));
+	EXPECT_TRUE(containsNear(limited, cv::Point2f(290, 459)));
 }

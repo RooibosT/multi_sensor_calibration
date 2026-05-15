@@ -51,6 +51,7 @@ MonoDetectorNode::MonoDetectorNode(ros::NodeHandle & nh) : nh_(nh) {
 	image_subscriber_       = nh_.subscribe("/ueye/left/image_raw", 1, &MonoDetectorNode::imageCallback, this);
 	camera_info_subscriber_ = nh_.subscribe("/ueye/left/camera_info", 1, &MonoDetectorNode::cameraInfoCallback, this); // ToDo: Replace with camera subscriber for sync camera info
 	point_cloud_publisher_  = nh_.advertise<sensor_msgs::PointCloud2>("mono_pattern", 100);
+	set_roi_service_        = nh_.advertiseService("set_roi", &MonoDetectorNode::setRoiCallback, this);
 }
 
 void MonoDetectorNode::imageCallback(sensor_msgs::ImageConstPtr const & in) {
@@ -86,6 +87,22 @@ void MonoDetectorNode::cameraInfoCallback(sensor_msgs::CameraInfo const & camera
 	if (!intrinsics_.fromCameraInfo(camera_info)) {
 		throw std::runtime_error("Unable to convert camera info to pinhole camera model.");
 	}
+}
+
+bool MonoDetectorNode::setRoiCallback(mono_detector::SetRoi::Request & req, mono_detector::SetRoi::Response & res) {
+	if (req.x < 0 || req.y < 0 || req.width <= 0 || req.height <= 0) {
+		res.success = false;
+		res.message = "ROI requires x >= 0, y >= 0, width > 0, and height > 0.";
+		ROS_WARN_STREAM(res.message);
+		return true;
+	}
+
+	config_.roi = cv::Rect(req.x, req.y, req.width, req.height);
+	res.success = true;
+	res.message = "Updated mono detector ROI.";
+	ROS_INFO_STREAM(res.message << " x=" << config_.roi.x << " y=" << config_.roi.y
+		<< " width=" << config_.roi.width << " height=" << config_.roi.height);
+	return true;
 }
 
 }
