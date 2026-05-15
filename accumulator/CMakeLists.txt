@@ -46,3 +46,9 @@ add_executable(${PROJECT_NAME} src/node.cpp src/yaml.cpp)
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${YAML_CPP_LIBRARIES})
 
 add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+if(CATKIN_ENABLE_TESTING)
+	catkin_add_gtest(test_pattern_size_filter test/test_pattern_size_filter.cpp)
+	target_link_libraries(test_pattern_size_filter ${catkin_LIBRARIES} ${YAML_CPP_LIBRARIES})
+	add_dependencies(test_pattern_size_filter ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+endif()

@@ -283,6 +283,23 @@ namespace {
 
 }
 
+inline int expectedPatternSizeForTopic(std::string const & sensor_pattern_topic, int radar_detections, int non_radar_detections) {
+	if (sensor_pattern_topic.find("radar") != std::string::npos) {
+		return radar_detections;
+	}
+	if (sensor_pattern_topic.find("lidar") != std::string::npos ||
+	    sensor_pattern_topic.find("mono") != std::string::npos ||
+	    sensor_pattern_topic.find("stereo") != std::string::npos) {
+		return non_radar_detections;
+	}
+	return -1;
+}
+
+inline bool hasExpectedPatternSize(std::string const & sensor_pattern_topic, std::size_t pattern_size, int radar_detections, int non_radar_detections) {
+	int const expected_size = expectedPatternSizeForTopic(sensor_pattern_topic, radar_detections, non_radar_detections);
+	return expected_size < 0 || pattern_size == static_cast<std::size_t>(expected_size);
+}
+
 /// Accumulates calibration pattern point clouds, cluster extraction after accumulation and sends the patterns to the optimizer to get the calibration
 class AccumulatorNode {
 public:
@@ -419,6 +436,15 @@ private:
 		} else { // stop accumulate
 			ROS_INFO_STREAM("Done with current calibration board location.");
 			ROS_INFO_STREAM("Currently accumulated: " << accumulated_locations_.at(accumulated_locations_.begin()->first).size() << " calibration board locations.");
+
+			for (auto const & c : current_location_patterns_) {
+				if (c.second.empty()) {
+					ROS_WARN_STREAM("Discarding current calibration board location because sensor '" << c.first
+						<< "' has no valid detections.");
+					return true;
+				}
+			}
+
 			// There is at least one detection for each sensor. Proceeding with cluster extraction.
 			for (auto & c : current_location_patterns_) { // Calculate center based on multiple frames using cluster extraction and store it in the accumulated locations
 				ROS_INFO_STREAM("Recorded " << c.second.size() << " detections for sensor " << c.first);
@@ -518,6 +544,11 @@ private:
 	void callback(pcl::PointCloud<pcl::PointXYZ>::ConstPtr const & in, std::string sensor_pattern_topic) {
 		ROS_INFO_ONCE("Receiving pattern.");
 		if (accumulate_) {
+			if (!hasExpectedPatternSize(sensor_pattern_topic, in->size(), nr_output_clusters_radar_, nr_output_clusters_non_radar_)) {
+				ROS_WARN_STREAM_THROTTLE(1.0, "Skipping pattern on '" << sensor_pattern_topic << "' with "
+					<< in->size() << " detections while accumulating.");
+				return;
+			}
 			current_location_patterns_.at(sensor_pattern_topic).push_back(*in);
 		}
 	}
